@@ -21,6 +21,7 @@ RUN rm /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     chgrp root /etc/passwd && chmod ug+rw /etc/passwd
 
+# download directories below need to be synced with these
 ENV SPARK_VERSION=spark-3.0.2-bin-hadoop3.2
 ENV RAPIDS_CUDF_JAR=cudf-0.18.1-cuda10-1.jar
 ENV RAPIDS_SPARK_JAR=rapids-4-spark_2.12-0.4.1.jar
@@ -28,7 +29,6 @@ ENV RAPIDS_SPARK_JAR=rapids-4-spark_2.12-0.4.1.jar
 RUN mkdir -p /opt/spark \
  && mkdir -p /opt/spark/python \
  && mkdir -p /opt/spark/work-dir \
- && mkdir -p /opt/sparkRapidsPlugin \
  && touch /opt/spark/RELEASE \
  && cd /tmp \
  && curl --output ${SPARK_VERSION}.tgz https://archive.apache.org/dist/spark/spark-3.0.2/${SPARK_VERSION}.tgz \
@@ -45,9 +45,10 @@ RUN mkdir -p /opt/spark \
  && cp -r ${SPARK_VERSION}/data /opt/spark/data \
  && cp -r ${SPARK_VERSION}/python/pyspark /opt/spark/python/pyspark \
  && cp -r ${SPARK_VERSION}/python/lib /opt/spark/python/lib \
- && cp ${RAPIDS_CUDF_JAR} /opt/sparkRapidsPlugin \
- && cp ${RAPIDS_SPARK_JAR} /opt/sparkRapidsPlugin \
- && cp getGpusResources.sh /opt/sparkRapidsPlugin \
+ && cp ${RAPIDS_CUDF_JAR} /opt/spark/jars/ \
+ && cp ${RAPIDS_SPARK_JAR} /opt/spark/jars/ \
+ && cp getGpusResources.sh /opt/ \
+ && chmod a+rx /opt/getGpusResources.sh \
  && rm -rf /tmp/* \
  && chown -R 9998:0 /opt \
  && chmod -R g+rwX /opt
