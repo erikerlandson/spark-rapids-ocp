@@ -1,0 +1,68 @@
+scala> val dfa = sc.makeRDD(1 to 10000000, 6).toDF("a")
+dfa: org.apache.spark.sql.DataFrame = [a: int]
+ 
+scala> val dfb = sc.makeRDD(1 to 10000000, 6).toDF("b")
+dfb: org.apache.spark.sql.DataFrame = [b: int]
+ 
+scala> dfa.registerTempTable("tba")
+warning: there was one deprecation warning (since 2.0.0); for details, enable `:setting -deprecation' or `:replay -deprecation'
+ 
+scala> dfb.registerTempTable("tbb")
+warning: there was one deprecation warning (since 2.0.0); for details, enable `:setting -deprecation' or `:replay -deprecation'
+ 
+scala> val join = spark.sql("select a from tba left join tbb on tba.a = tbb.b")
+join: org.apache.spark.sql.DataFrame = [a: int]
+ 
+scala> join.count
+res44: Long = 10000000                                                          
+ 
+scala> val plan = spark.sql("explain extended select a from tba left join tbb on tba.a = tbb.b")
+plan: org.apache.spark.sql.DataFrame = [plan: string]
+ 
+scala> println(s"${plan.first.getString(0)}")
+== Parsed Logical Plan ==
+'Project ['a]
++- 'Join LeftOuter, ('tba.a = 'tbb.b)
+   :- 'UnresolvedRelation [tba]
+   +- 'UnresolvedRelation [tbb]
+ 
+== Analyzed Logical Plan ==
+a: int
+Project [a#78]
++- Join LeftOuter, (a#78 = b#85)
+   :- SubqueryAlias tba
+   :  +- Project [value#75 AS a#78]
+   :     +- SerializeFromObject [input[0, int, false] AS value#75]
+   :        +- ExternalRDD [obj#74]
+   +- SubqueryAlias tbb
+      +- Project [value#82 AS b#85]
+         +- SerializeFromObject [input[0, int, false] AS value#82]
+            +- ExternalRDD [obj#81]
+
+== Optimized Logical Plan ==
+Project [a#78]
++- Join LeftOuter, (a#78 = b#85)
+   :- Project [value#75 AS a#78]
+   :  +- SerializeFromObject [input[0, int, false] AS value#75]
+   :     +- ExternalRDD [obj#74]
+   +- Project [value#82 AS b#85]
+      +- SerializeFromObject [input[0, int, false] AS value#82]
+         +- ExternalRDD [obj#81]
+ 
+== Physical Plan ==
+GpuColumnarToRow false
++- GpuProject [a#78]
+   +- GpuShuffledHashJoin [a#78], [b#85], LeftOuter, GpuBuildRight, false
+      :- GpuShuffleCoalesce 2147483647
+      :  +- GpuColumnarExchange gpuhashpartitioning(a#78, 10), true, [id=#653]
+      :     +- GpuProject [value#75 AS a#78]
+      :        +- GpuRowToColumnar TargetSize(2147483647)
+      :           +- *(1) SerializeFromObject [input[0, int, false] AS value#75]
+      :              +- Scan[obj#74]
+      +- GpuCoalesceBatches RequireSingleBatch
+         +- GpuShuffleCoalesce 2147483647
+            +- GpuColumnarExchange gpuhashpartitioning(b#85, 10), true, [id=#660]
+               +- GpuProject [value#82 AS b#85]
+                  +- GpuRowToColumnar TargetSize(2147483647)
+                     +- *(2) SerializeFromObject [input[0, int, false] AS value#82]
+                        +- Scan[obj#81]
