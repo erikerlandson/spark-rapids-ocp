@@ -1,0 +1,6 @@
+# example service-acct that allows spark driver pods to create executor pods
+# see also: https://spark.apache.org/docs/latest/running-on-kubernetes.html#rbac
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: spark

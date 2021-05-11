@@ -1,0 +1,15 @@
+# role-binding that goes with spark service-acct
+# see also: https://spark.apache.org/docs/latest/running-on-kubernetes.html#rbac
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spark-role
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+- kind: ServiceAccount
+  name: spark
+  # edit with your namespace here
+  namespace: < your namespace >
