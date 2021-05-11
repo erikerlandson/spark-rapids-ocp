@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: spark-web-console
+spec:
+  ports:
+    - protocol: TCP
+      port: 4040
+      targetPort: 4040
+  selector:
+    deploymentconfig: spark
+  type: ClusterIP
+  sessionAffinity: None
