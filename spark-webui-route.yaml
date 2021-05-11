@@ -1,0 +1,12 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: spark-web-console
+spec:
+  to:
+    kind: Service
+    name: spark-web-console
+    weight: 100
+  port:
+    targetPort: 4040
+  wildcardPolicy: None
