@@ -1,5 +1,7 @@
 
-FROM docker.io/nvidia/cuda:10.1-devel-ubuntu18.04
+#FROM docker.io/nvidia/cuda:10.1-devel-ubuntu18.04
+# mirror to get around docker pull rate limits
+FROM quay.io/erikerlandson/cuda:10.1-devel-ubuntu18.04
 
 # tell apt to not ask for keyboard language inputs
 ENV DEBIAN_FRONTEND=noninteractive
