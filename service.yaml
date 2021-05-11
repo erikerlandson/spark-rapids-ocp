@@ -1,0 +1,14 @@
+# example headless service for spark executors to resolve back to driver pod
+# works with a pod started like this:
+# oc run -i -t --serviceaccount=spark spark --image=quay.io/erikerlandson/spark-rapids:latest --command -- /bin/bash
+#
+kind: Service
+apiVersion: v1
+metadata:
+  name: < your spark pod name here >
+spec:
+  selector:
+    deploymentconfig: spark
+  clusterIP: None
+  type: ClusterIP
+  sessionAffinity: None

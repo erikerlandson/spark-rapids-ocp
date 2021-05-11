@@ -26,6 +26,9 @@ ENV SPARK_VERSION=spark-3.0.2-bin-hadoop3.2
 ENV RAPIDS_CUDF_JAR=cudf-0.18.1-cuda10-1.jar
 ENV RAPIDS_SPARK_JAR=rapids-4-spark_2.12-0.4.1.jar
 
+COPY scripts/run-spark-shell-gpu.sh /opt/
+COPY scripts/run-spark-shell-nogpu.sh /opt/
+
 RUN mkdir -p /opt/spark \
  && mkdir -p /opt/spark/python \
  && mkdir -p /opt/spark/work-dir \
